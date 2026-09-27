@@ -92,7 +92,7 @@
       <input class="search" id="search" type="search" placeholder="Find a stop, code or service" aria-label="Find a stop, code or service" autocomplete="off">
       <div class="search-results" id="search-results" aria-label="Stop search results"></div>
       <div class="preset" role="group" aria-label="Route filters">
-        <button type="button" id="all-btn" class="active">All services</button>
+        <button type="button" id="all-btn" class="active" aria-label="Deselect all services">Deselect all</button>
         <button type="button" id="campus-btn">Campus</button>
         <button type="button" id="links-btn">Coventry links</button>
       </div>
@@ -192,7 +192,10 @@
     }
     function updatePresets() {
       const same = arr => selected.size === arr.length && arr.every(n => selected.has(n));
-      $('all-btn').classList.toggle('active', same(allNumbers));
+      const allSelected = same(allNumbers);
+      $('all-btn').classList.toggle('active', allSelected);
+      $('all-btn').textContent = allSelected ? 'Deselect all' : 'Select all';
+      $('all-btn').setAttribute('aria-label', allSelected ? 'Deselect all services' : 'Select all services');
       $('campus-btn').classList.toggle('active', same(data.routes.filter(r => r.category==='campus').map(r => r.number)));
       $('links-btn').classList.toggle('active', same(data.routes.filter(r => r.category==='connection').map(r => r.number)));
     }
@@ -243,7 +246,10 @@
     $('feed-version').textContent=data.feed_version;
     $('search').addEventListener('input',search);
     $('fit-btn').addEventListener('click',fitSelected);
-    $('all-btn').addEventListener('click',() => preset('all'));
+    $('all-btn').addEventListener('click',() => {
+      if (selected.size === allNumbers.length) { selected.clear(); update(); }
+      else preset('all');
+    });
     $('campus-btn').addEventListener('click',() => preset('campus'));
     $('links-btn').addEventListener('click',() => preset('connection'));
   })();
